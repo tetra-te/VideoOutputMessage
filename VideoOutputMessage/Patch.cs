@@ -12,8 +12,8 @@ namespace VideoOutputMessage
         {
             var assemblyPath = Assembly.GetExecutingAssembly().Location;
             var directory = Path.GetDirectoryName(assemblyPath);
-            var messagePath = Path.Combine(directory, "メッセージ.txt");
-            var showStartupTimePath = Path.Combine(directory, "起動経過時間を表示する.txt");
+            var messagePath = Path.Combine(directory, "Message.txt");
+            var showStartupTimePath = Path.Combine(directory, "ShowStartupTime.txt");
             
             var message = "";
 
