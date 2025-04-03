@@ -1,0 +1,2 @@
+# VideoOutputMessage
+ 動画出力ウィンドウにメッセージを表示するYMM4プラグイン
