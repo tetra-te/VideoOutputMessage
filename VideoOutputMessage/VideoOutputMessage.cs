@@ -11,7 +11,7 @@ namespace VideoOutputMessage
         {
             var harmony = new Harmony("VideoOutputMessage");
 
-            var original = AccessTools.Method("YukkuriMovieMaker.VideoFileWriter.VideoFileWriter:CreateVolumeAdjustMessage");
+            var original = AccessTools.Method("YukkuriMovieMaker.VideoFileWriter.VideoFileWriter:GetRemainingTimeText");
             var transpiler = typeof(Patch).GetMethod("Transpiler");
 
             harmony.Patch(original, transpiler: new HarmonyMethod(transpiler));

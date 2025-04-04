@@ -53,6 +53,11 @@ namespace VideoOutputMessage
                 MessageBox.Show("起動経過時間の設定が間違っています\r\n半角の0または1のみが使用可能です", "動画出力メッセージプラグイン");
             }
 
+            if (message != "" || showStartupTime)
+            {
+                message = $"\r\n{message}";
+            }
+
             var code = new List<CodeInstruction>(instructions);
 
             for (int i = code.Count - 1; i >= 0; i--)
