@@ -1,0 +1,28 @@
+﻿<UserControl x:Class="VideoOutputMessage.Settings.VideoOutputMessageSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VideoOutputMessage.Settings"
+             xmlns:c="clr-namespace:YukkuriMovieMaker.Controls;assembly=YukkuriMovieMaker.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Expander Header="動画出力メッセージ設定" IsExpanded="True">
+        <StackPanel>
+            <Grid>
+                <Label Content="メッセージ"/>
+                <TextBox 
+                    Text="{Binding Source={x:Static local:VideoOutputSettings.Default},Path=Message}" 
+                    HorizontalAlignment="Right"
+                    AcceptsReturn="True"
+                    VerticalScrollBarVisibility="Auto"
+                    Height="50"
+                    Width="300"/>
+            </Grid>
+            <Grid>
+                <Label Content="YMM4が起動してからの時間を表示する"/>
+                <c:ToggleSlider Value="{Binding Source={x:Static local:VideoOutputSettings.Default},Path=ShowStartupTime}" HorizontalAlignment="Right"/>
+            </Grid>
+        </StackPanel>
+    </Expander>
+</UserControl>
