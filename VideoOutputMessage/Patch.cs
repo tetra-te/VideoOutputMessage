@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using System.Reflection;
 using System.Reflection.Emit;
 using System.Windows;
+using YukkuriMovieMaker.Commons;
 using HarmonyLib;
 
 namespace VideoOutputMessage
@@ -10,11 +10,26 @@ namespace VideoOutputMessage
     {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var assemblyPath = Assembly.GetExecutingAssembly().Location;
-            var directory = Path.GetDirectoryName(assemblyPath);
-            var messagePath = Path.Combine(directory, "Message.txt");
-            var showStartupTimePath = Path.Combine(directory, "ShowStartupTime.txt");
-            
+            var pluginFolder = Path.Combine(AppDirectories.PluginDirectory, "VideoOutputMessage");
+            var messagePath = Path.Combine(pluginFolder, "Message.txt");
+            var showStartupTimePath = Path.Combine(pluginFolder, "ShowStartupTime.txt");
+
+            if (!File.Exists(messagePath))
+            {
+                using (var writer = new StreamWriter(messagePath))
+                {
+                    writer.Write("動画編集お疲れ様！");
+                }
+            }
+
+            if (!File.Exists(showStartupTimePath))
+            {
+                using (var writer = new StreamWriter(showStartupTimePath))
+                {
+                    writer.Write("1");
+                }
+            }
+
             var message = "";
 
             try
