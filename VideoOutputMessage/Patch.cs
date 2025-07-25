@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using HarmonyLib;
+using System.IO;
 using System.Reflection.Emit;
 using System.Windows;
+using VideoOutputMessage.Settings;
 using YukkuriMovieMaker.Commons;
-using HarmonyLib;
 
 namespace VideoOutputMessage
 {
@@ -10,65 +11,10 @@ namespace VideoOutputMessage
     {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var pluginFolder = Path.Combine(AppDirectories.PluginDirectory, "VideoOutputMessage");
-            var messagePath = Path.Combine(pluginFolder, "Message.txt");
-            var showStartupTimePath = Path.Combine(pluginFolder, "ShowStartupTime.txt");
+            var message = VideoOutputSettings.Default.Message;
+            bool showStartupTime = VideoOutputSettings.Default.ShowStartupTime;
 
-            if (!File.Exists(messagePath))
-            {
-                using (var writer = new StreamWriter(messagePath))
-                {
-                    writer.Write("動画編集お疲れ様！");
-                }
-            }
-
-            if (!File.Exists(showStartupTimePath))
-            {
-                using (var writer = new StreamWriter(showStartupTimePath))
-                {
-                    writer.Write("1");
-                }
-            }
-
-            var message = "";
-
-            try
-            {
-                message = File.ReadAllText(messagePath);
-            }
-            catch
-            {
-                MessageBox.Show("メッセージを読み込めませんでした", "動画出力メッセージプラグイン");
-            }
-
-            var showStartupTimeText = "1";
-
-            try
-            {
-                showStartupTimeText = File.ReadAllText(showStartupTimePath);
-            }
-            catch
-            {
-                MessageBox.Show("起動経過時間の設定を読み込めませんでした", "動画出力メッセージプラグイン");
-            }
-
-            bool showStartupTime;
-
-            if (showStartupTimeText == "0")
-            {
-                showStartupTime = false;
-            }
-            else if(showStartupTimeText == "1")
-            {
-                showStartupTime = true;
-            }
-            else
-            {
-                showStartupTime = true;
-                MessageBox.Show("起動経過時間の設定が間違っています\r\n半角の0または1のみが使用可能です", "動画出力メッセージプラグイン");
-            }
-
-            if (message != "" || showStartupTime)
+            if (!string.IsNullOrEmpty(message) || showStartupTime)
             {
                 message = $"\r\n{message}";
             }
