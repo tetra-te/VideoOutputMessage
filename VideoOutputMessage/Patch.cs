@@ -1,9 +1,6 @@
-﻿using HarmonyLib;
-using System.IO;
-using System.Reflection.Emit;
-using System.Windows;
+﻿using System.Reflection.Emit;
+using HarmonyLib;
 using VideoOutputMessage.Settings;
-using YukkuriMovieMaker.Commons;
 
 namespace VideoOutputMessage
 {
@@ -12,34 +9,32 @@ namespace VideoOutputMessage
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var message = VideoOutputSettings.Default.Message;
-            bool showStartupTime = VideoOutputSettings.Default.ShowStartupTime;
+            var showStartupTime = VideoOutputSettings.Default.ShowStartupTime;
 
             if (!string.IsNullOrEmpty(message) || showStartupTime)
             {
-                message = $"\r\n{message}";
+                message = "\r\n" + message;
             }
 
-            var code = new List<CodeInstruction>(instructions);
-
-            for (int i = code.Count - 1; i >= 0; i--)
+            foreach (var instruction in instructions)
             {
-                if (code[i].opcode == OpCodes.Ret)
+                if (instruction.opcode == OpCodes.Ret)
                 {
                     if (showStartupTime)
                     {
-                        code.Insert(i, new CodeInstruction(OpCodes.Ldstr, message));
-                        code.Insert(i + 1, new CodeInstruction(OpCodes.Call, typeof(GetTime).GetMethod("GetStartupTime")));
-                        code.Insert(i + 2, new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string), typeof(string)])));
+                        yield return new CodeInstruction(OpCodes.Ldstr, message);
+                        yield return new CodeInstruction(OpCodes.Call, typeof(GetTime).GetMethod("GetStartupTime"));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string), typeof(string)]));
                     }
                     else
                     {
-                        code.Insert(i, new CodeInstruction(OpCodes.Ldstr, message));
-                        code.Insert(i + 1, new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string)])));
+                        yield return new CodeInstruction(OpCodes.Ldstr, message);
+                        yield return new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string)]));
                     }
                 }
+                
+                yield return instruction;
             }
-
-            return code;
         }
     }
 }
