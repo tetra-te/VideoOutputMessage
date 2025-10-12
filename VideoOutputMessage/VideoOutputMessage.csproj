@@ -6,8 +6,6 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 
-		<Version>1.2</Version>
-
 		<!--Pdb内にソースコードのフルパスを含めない-->
 		<RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</RepoRoot>
 		<PathMap>$(RepoRoot)=.</PathMap>
@@ -20,9 +18,6 @@
 	<ItemGroup>
 		<Reference Include="YukkuriMovieMaker.Plugin">
 			<HintPath>$(YMM4DirPath)YukkuriMovieMaker.Plugin.dll</HintPath>
-		</Reference>
-		<Reference Include="YukkuriMovieMaker.Controls">
-			<HintPath>$(YMM4DirPath)YukkuriMovieMaker.Controls.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

@@ -1,6 +1,8 @@
-﻿using System.Reflection.Emit;
+﻿using System.IO;
+using System.Reflection.Emit;
+using System.Windows;
+using YukkuriMovieMaker.Commons;
 using HarmonyLib;
-using VideoOutputMessage.Settings;
 
 namespace VideoOutputMessage
 {
@@ -8,33 +10,90 @@ namespace VideoOutputMessage
     {
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            var message = VideoOutputSettings.Default.Message;
-            var showStartupTime = VideoOutputSettings.Default.ShowStartupTime;
+            var pluginFolder = Path.Combine(AppDirectories.PluginDirectory, "VideoOutputMessage");
+            var messagePath = Path.Combine(pluginFolder, "Message.txt");
+            var showStartupTimePath = Path.Combine(pluginFolder, "ShowStartupTime.txt");
 
-            if (!string.IsNullOrEmpty(message) || showStartupTime)
+            if (!File.Exists(messagePath))
             {
-                message = "\r\n" + message;
+                using (var writer = new StreamWriter(messagePath))
+                {
+                    writer.Write("動画編集お疲れ様！");
+                }
             }
 
-            foreach (var instruction in instructions)
+            if (!File.Exists(showStartupTimePath))
             {
-                if (instruction.opcode == OpCodes.Ret)
+                using (var writer = new StreamWriter(showStartupTimePath))
+                {
+                    writer.Write("1");
+                }
+            }
+
+            var message = "";
+
+            try
+            {
+                message = File.ReadAllText(messagePath);
+            }
+            catch
+            {
+                MessageBox.Show("メッセージを読み込めませんでした", "動画出力メッセージプラグイン");
+            }
+
+            var showStartupTimeText = "1";
+
+            try
+            {
+                showStartupTimeText = File.ReadAllText(showStartupTimePath);
+            }
+            catch
+            {
+                MessageBox.Show("起動経過時間の設定を読み込めませんでした", "動画出力メッセージプラグイン");
+            }
+
+            bool showStartupTime;
+
+            if (showStartupTimeText == "0")
+            {
+                showStartupTime = false;
+            }
+            else if(showStartupTimeText == "1")
+            {
+                showStartupTime = true;
+            }
+            else
+            {
+                showStartupTime = true;
+                MessageBox.Show("起動経過時間の設定が間違っています\r\n半角の0または1のみが使用可能です", "動画出力メッセージプラグイン");
+            }
+
+            if (message != "" || showStartupTime)
+            {
+                message = $"\r\n{message}";
+            }
+
+            var code = new List<CodeInstruction>(instructions);
+
+            for (int i = code.Count - 1; i >= 0; i--)
+            {
+                if (code[i].opcode == OpCodes.Ret)
                 {
                     if (showStartupTime)
                     {
-                        yield return new CodeInstruction(OpCodes.Ldstr, message);
-                        yield return new CodeInstruction(OpCodes.Call, typeof(GetTime).GetMethod("GetStartupTime"));
-                        yield return new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string), typeof(string)]));
+                        code.Insert(i, new CodeInstruction(OpCodes.Ldstr, message));
+                        code.Insert(i + 1, new CodeInstruction(OpCodes.Call, typeof(GetTime).GetMethod("GetStartupTime")));
+                        code.Insert(i + 2, new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string), typeof(string)])));
                     }
                     else
                     {
-                        yield return new CodeInstruction(OpCodes.Ldstr, message);
-                        yield return new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string)]));
+                        code.Insert(i, new CodeInstruction(OpCodes.Ldstr, message));
+                        code.Insert(i + 1, new CodeInstruction(OpCodes.Call, typeof(string).GetMethod("Concat", [typeof(string), typeof(string)])));
                     }
                 }
-                
-                yield return instruction;
             }
+
+            return code;
         }
     }
 }
